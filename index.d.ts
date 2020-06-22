@@ -29,6 +29,141 @@
 
 // TODO express type of Schema in a type-parameter (.default, .valid, .example etc)
 
+type Omit<T, K> = Pick<T, Exclude<keyof T, K>>
+declare namespace Joi {
+
+    interface Meta<TPresence = never, TType = never, TSubValues = never, TOnly = never> {
+        presence: (o: TPresence) => void
+        type: (o: TType) => void
+        valueTypes: (o: TSubValues) => void
+        only: (o: TOnly) => void
+    }
+    
+    type ReplacePresence<TMeta extends Meta, TPresence> = 
+        TMeta extends Meta<never, infer TType, infer TSubValues, infer TOnly> ? Meta<TPresence, TType, TSubValues, TOnly> : never
+    type ReplaceType<TMeta extends Meta, TType> = 
+        TMeta extends Meta<infer TPresence, never, infer TOnly> ? Meta<TPresence, TType, TOnly> : never
+    type AddValueType<TMeta extends Meta, TAddedSubValues> = 
+        TMeta extends Meta<infer TPresence, infer TType, infer TSubValues, infer TOnly> ? Meta<TPresence, TType, TSubValues | TAddedSubValues, TOnly> : never
+    type ReplaceValueType<TMeta extends Meta, TSubValues> = 
+        TMeta extends Meta<infer TPresence, infer TType, never, infer TOnly> ? Meta<TPresence, TType, TSubValues, TOnly> : never
+    type ReplaceOnly<TMeta extends Meta, TOnly> = 
+        TMeta extends Meta<infer TPresence, infer TType, infer TSubValues, never> ? Meta<TPresence, TType, TSubValues, TOnly> : never
+
+        
+    interface SchemaTypeMap<TThis, TMeta extends Meta> {
+        "any": AnySchema<TMeta>
+        "array": TThis extends ArraySchema<infer TSchema, any> ? ArraySchema<TSchema, TMeta> : never,
+        "alternatives": AlternativesSchema<TMeta>
+        "boolean": BooleanSchema<TMeta>
+        "date": DateSchema<TMeta>
+        "number": NumberSchema<TMeta>
+        "string": StringSchema<TMeta>
+        "symbol": SymbolSchema<TMeta>
+        "object": TThis extends ObjectSchema<infer TSchema, any> ? ObjectSchema<TSchema, TMeta> : never
+    }
+    
+    type KeysByPresence<T extends Record<string, SchemaLike> , TPresence extends PresenceMode> = {
+        [P in keyof T]: T[P] extends { __meta: Meta<TPresence> } ? P: never
+    }[keyof T]
+
+    type DefaultSchemaToType<TMeta extends Meta> = TMeta extends Meta<never, infer TType, infer TValues, infer TOnly> ? [true] extends [TOnly] ? TValues : TType : never
+    interface SchemaToTypeMapHelper<TMeta extends Meta> {
+        "any": DefaultSchemaToType<TMeta>
+        "array": DefaultSchemaToType<TMeta>
+        "alternatives": DefaultSchemaToType<TMeta>
+        "boolean": DefaultSchemaToType<TMeta>
+        "date": DefaultSchemaToType<TMeta>
+        "number": DefaultSchemaToType<TMeta>
+        "string": DefaultSchemaToType<TMeta>
+        "symbol": DefaultSchemaToType<TMeta>
+        "object": DefaultSchemaToType<TMeta>
+    }
+
+    type NamedTypeSchema = { __name: keyof SchemaToTypeMapHelper<never>, __meta: Meta }
+    type TupleSchemaToType<T extends SchemaLike | NamedTypeSchema> = {
+        [P in keyof T]: SchemaToType<T[P]>
+    }
+    export type SchemaToType<T extends SchemaLike | NamedTypeSchema> = 
+        T extends NamedTypeSchema ? SchemaToTypeMapHelper<T['__meta']>[T['__name']] : T;
+
+    // type Id<T> = T
+    type Id<T> = { } & { [P in keyof T]: T[P]}
+    type SimplifyObjectSchema<T extends Record<string, SchemaLike>> = Id<
+    {
+        [P in KeysByPresence<T, "required">]: SchemaToType<T[P]>
+    } 
+    & {
+        [P in KeysByPresence<T, "optional">]?: SchemaToType<T[P]>
+    }
+    & {
+        [P in KeysByPresence<T, "forbidden">]?: undefined
+    }
+    >
+
+
+    interface TypeMetaSchema<TMeta extends Meta = Meta<never>, SchemaName extends keyof SchemaTypeMap<any, TMeta> = never> {
+        __meta: TMeta
+        __name: SchemaName
+        
+        /**
+         * Marks a key as required which will not allow undefined as value. All keys are optional by default.
+         */
+        required(): SchemaTypeMap<this, ReplacePresence<TMeta, "required">>[SchemaName]
+        
+        /**
+         * Marks a key as required which will not allow undefined as value. All keys are optional by default.
+         */
+        exist(): SchemaTypeMap<this, ReplacePresence<TMeta, "required">>[SchemaName]
+        
+        /**
+         * Marks a key as optional which will allow undefined as values. Used to annotate the schema for readability as all keys are optional by default.
+         */
+        optional(): SchemaTypeMap<this, ReplacePresence<TMeta, "optional">>[SchemaName]
+        
+        /**
+         * Marks a key as forbidden which will not allow any value except undefined. Used to explicitly forbid keys.
+         */
+        forbidden(): SchemaTypeMap<this, ReplacePresence<TMeta, "forbidden">>[SchemaName]
+        
+        /**
+         * Sets the presence mode for the schema.
+         */
+        presence<P extends PresenceMode>(mode: P): SchemaTypeMap<this, ReplacePresence<TMeta, P>>[SchemaName]
+    
+        /**
+         * Whitelists a value
+         */
+        allow<T extends number | string | boolean | null | undefined>(override: Root['override'], ...value: T[]): SchemaTypeMap<this, ReplaceValueType<TMeta, T>>[SchemaName]
+        allow<T extends number | string | boolean | null | undefined>(...value: T[]): SchemaTypeMap<this, AddValueType<TMeta, T>>[SchemaName]
+    
+        
+        /**
+         * Adds the provided values into the allowed whitelist and marks them as the only valid values allowed.
+         */
+        equal<T extends number | string | boolean | null | undefined>(override: Root['override'], ...value: T[]): SchemaTypeMap<this, ReplaceValueType<TMeta, T>>[SchemaName]
+        equal<T extends number | string | boolean | null | undefined>(...value: T[]): SchemaTypeMap<this, AddValueType<TMeta, T>>[SchemaName]
+    
+        
+        /**
+         * Requires the validated value to match of the provided `any.allow()` values.
+         * It has not effect when called together with `any.valid()` since it already sets the requirements.
+         * When used with `any.allow()` it converts it to an `any.valid()`.
+         */
+        only(): SchemaTypeMap<this, ReplaceOnly<TMeta, true>>[SchemaName]
+
+        
+        /**
+         * Adds the provided values into the allowed whitelist and marks them as the only valid values allowed.
+         */
+        valid(override: Root['override']): SchemaTypeMap<this, ReplaceOnly<ReplaceValueType<TMeta, never>, false>>[SchemaName]
+        valid<T extends number | string | boolean | null | undefined>(override: Root['override'], ...value: T[]): SchemaTypeMap<this, ReplaceOnly<ReplaceValueType<TMeta, T>, true>>[SchemaName]
+        valid<T extends number | string | boolean | null | undefined>(...value: T[]): SchemaTypeMap<this, ReplaceOnly<AddValueType<TMeta, T>, true>>[SchemaName]
+    }
+    
+}
+
+
 declare namespace Joi {
     type Types =
         | 'any'
@@ -811,7 +946,7 @@ declare namespace Joi {
         $_validate(value: any, state: State, prefs: ValidationOptions): ValidationResult;
     }
 
-    interface AnySchema extends SchemaInternals {
+    interface AnySchema<TMeta extends Meta = Meta<never>> extends TypeMetaSchema<TMeta, "any">, SchemaInternals {
         /**
          * Flags of current schema.
          */
@@ -828,11 +963,6 @@ declare namespace Joi {
         ruleset: this;
 
         type?: Types | string;
-
-        /**
-         * Whitelists a value
-         */
-        allow(...values: any[]): this;
 
         /**
          * Assign target alteration options to a schema that are applied when `any.tailor()` is called.
@@ -909,11 +1039,6 @@ declare namespace Joi {
         empty(schema?: SchemaLike): this;
 
         /**
-         * Adds the provided values into the allowed whitelist and marks them as the only valid values allowed.
-         */
-        equal(...values: any[]): this;
-
-        /**
          * Overrides the default joi error with a custom error if the rule fails where:
          * @param err - can be:
          *   an instance of `Error` - the override error.
@@ -937,11 +1062,6 @@ declare namespace Joi {
          * Annotates the key with an example value, must be valid.
          */
         example(value: any, options?: { override: boolean }): this;
-
-        /**
-         * Marks a key as required which will not allow undefined as value. All keys are optional by default.
-         */
-        exist(): this;
 
         /**
          * Adds an external validation rule.
@@ -971,11 +1091,6 @@ declare namespace Joi {
          * If you do not need access to the context, define the function without any arguments.
          */
         failover(value: any): this;
-
-        /**
-         * Marks a key as forbidden which will not allow any value except undefined. Used to explicitly forbid keys.
-         */
-        forbidden(): this;
 
         /**
          * Returns a new schema where each of the path keys listed have been modified.
@@ -1040,18 +1155,6 @@ declare namespace Joi {
         note(...notes: string[]): this;
 
         /**
-         * Requires the validated value to match of the provided `any.allow()` values.
-         * It has not effect when called together with `any.valid()` since it already sets the requirements.
-         * When used with `any.allow()` it converts it to an `any.valid()`.
-         */
-        only(): this;
-
-        /**
-         * Marks a key as optional which will allow undefined as values. Used to annotate the schema for readability as all keys are optional by default.
-         */
-        optional(): this;
-
-        /**
          * Overrides the global validate() options for the current key and any sub-key.
          */
         options(options: ValidationOptions): this;
@@ -1067,19 +1170,9 @@ declare namespace Joi {
         preferences(options: ValidationOptions): this;
 
         /**
-         * Sets the presence mode for the schema.
-         */
-        presence(mode: PresenceMode): this;
-
-        /**
          * Outputs the original untouched value instead of the casted value.
          */
         raw(enabled?: boolean): this;
-
-        /**
-         * Marks a key as required which will not allow undefined as value. All keys are optional by default.
-         */
-        required(): this;
 
         /**
          * Applies a set of rule options to the current ruleset or last rule added.
@@ -1125,11 +1218,6 @@ declare namespace Joi {
          * Annotates the key with an unit name.
          */
         unit(name: string): this;
-
-        /**
-         * Adds the provided values into the allowed whitelist and marks them as the only valid values allowed.
-         */
-        valid(...values: any[]): this;
 
         /**
          * Validates a value using the schema and options.
@@ -1199,7 +1287,7 @@ declare namespace Joi {
         localize?(...args: any[]): State;
     }
 
-    interface BooleanSchema extends AnySchema {
+    interface BooleanSchema<TMeta extends Meta = Meta<never, boolean>> extends TypeMetaSchema<TMeta, "boolean">, Omit<AnySchema<TMeta>, keyof TypeMetaSchema> {
         /**
          * Allows for additional values to be considered valid booleans by converting them to false during validation.
          * String comparisons are by default case insensitive,
@@ -1222,7 +1310,7 @@ declare namespace Joi {
         truthy(...values: Array<string | number>): this;
     }
 
-    interface NumberSchema extends AnySchema {
+    interface NumberSchema<TMeta extends Meta = Meta<never, number>> extends TypeMetaSchema<TMeta, "number">, Omit<AnySchema<TMeta>, keyof TypeMetaSchema> {
         /**
          * Specifies that the value must be greater than limit.
          * It can also be a reference to another field.
@@ -1289,7 +1377,7 @@ declare namespace Joi {
         unsafe(enabled?: any): this;
     }
 
-    interface StringSchema extends AnySchema {
+    interface StringSchema<TMeta extends Meta = Meta<never, string>> extends TypeMetaSchema<TMeta, "string">, Omit<AnySchema<TMeta>, keyof TypeMetaSchema> {
         /**
          * Requires the string value to only contain a-z, A-Z, and 0-9.
          */
@@ -1454,7 +1542,7 @@ declare namespace Joi {
         uuid(options?: GuidOptions): this;
     }
 
-    interface SymbolSchema extends AnySchema {
+    interface SymbolSchema<TMeta extends Meta = Meta<never, symbol>> extends TypeMetaSchema<TMeta, "symbol">, Omit<AnySchema<TMeta>, keyof TypeMetaSchema> {
         // TODO: support number and symbol index
         map(iterable: Iterable<[string | number | boolean | symbol, symbol]> | { [key: string]: symbol }): this;
     }
@@ -1478,7 +1566,7 @@ declare namespace Joi {
 
     type ComparatorFunction = (a: any, b: any) => boolean;
 
-    interface ArraySchema extends AnySchema {
+    interface ArraySchema<TSchema = any, TMeta extends Meta = Meta<never, TSchema>>  extends TypeMetaSchema<TMeta, "array">, Omit<AnySchema<TMeta>, keyof TypeMetaSchema> {
         /**
          * Verifies that an assertion passes for at least one item in the array, where:
          * `schema` - the validation rules required to satisfy the assertion. If the `schema` includes references, they are resolved against
@@ -1496,7 +1584,7 @@ declare namespace Joi {
          *
          * @param type - a joi schema object to validate each array item against.
          */
-        items(...types: SchemaLike[]): this;
+        items<T extends SchemaLike>(...types: T[]): ArraySchema<SchemaToType<T>, ReplaceType<TMeta, SchemaToType<T>[]>>;
 
         /**
          * Specifies the exact number of items in the array.
@@ -1520,7 +1608,7 @@ declare namespace Joi {
          * Errors will contain the number of items that didn't match.
          * Any unmatched item having a label will be mentioned explicitly.
          */
-        ordered(...types: SchemaLike[]): this;
+        ordered<T extends [SchemaLike] | SchemaLike[]>(...types: T): ArraySchema<TupleSchemaToType<T>, ReplaceType<TMeta, SchemaToType<T>[]>>;
 
         /**
          * Allow single values to be checked against rules as if it were provided as an array.
@@ -1554,7 +1642,7 @@ declare namespace Joi {
         matches: SchemaLike | Reference;
     }
 
-    interface ObjectSchema<TSchema = any> extends AnySchema {
+    interface ObjectSchema<TSchema = any, TMeta extends Meta = Meta<never, TSchema>>  extends TypeMetaSchema<TMeta, "object">, Omit<AnySchema<TMeta>, keyof TypeMetaSchema> {
         /**
          * Defines an all-or-nothing relationship between keys where if one of the peers is present, all of them are required as well.
          *
@@ -1695,7 +1783,7 @@ declare namespace Joi {
         length(limit: number | Reference): this;
     }
 
-    interface DateSchema extends AnySchema {
+    interface DateSchema <TMeta extends Meta = Meta<never, Date>> extends TypeMetaSchema<TMeta, "date">, Omit<AnySchema<TMeta>, keyof TypeMetaSchema> {
         /**
          * Specifies that the value must be greater than date.
          * Notes: 'now' can be passed in lieu of date so as to always compare relatively to the current date,
@@ -1765,7 +1853,7 @@ declare namespace Joi {
         maxArity(n: number): this;
     }
 
-    interface AlternativesSchema extends AnySchema {
+    interface AlternativesSchema <TMeta extends Meta = Meta<never>> extends TypeMetaSchema<TMeta, "alternatives">, Omit<AnySchema<TMeta>, keyof TypeMetaSchema> {
         /**
          * Adds a conditional alternative schema type, either based on another key value, or a schema peeking into the current value.
          */
@@ -1781,7 +1869,7 @@ declare namespace Joi {
         /**
          * Adds an alternative schema type for attempting to match against the validated value.
          */
-        try(...types: SchemaLike[]): this;
+        try<T extends SchemaLike>(...types: SchemaLike[]): AlternativesSchema<ReplaceType<TMeta, SchemaToType<T>>>;
     }
 
     interface LinkSchema extends AnySchema {
@@ -1931,22 +2019,22 @@ declare namespace Joi {
         /**
          * Generates a schema object that matches any data type.
          */
-        any(): AnySchema;
+        any(): AnySchema<Meta<"optional", unknown>>;
 
         /**
          * Generates a schema object that matches an array data type.
          */
-        array(): ArraySchema;
+        array<T>(): ArraySchema<Meta<"optional", T[]>>;
 
         /**
          * Generates a schema object that matches a boolean data type (as well as the strings 'true', 'false', 'yes', and 'no'). Can also be called via bool().
          */
-        bool(): BooleanSchema;
+        bool(): BooleanSchema<Meta<"optional", boolean>>;
 
         /**
          * Generates a schema object that matches a boolean data type (as well as the strings 'true', 'false', 'yes', and 'no'). Can also be called via bool().
          */
-        boolean(): BooleanSchema;
+        boolean(): BooleanSchema<Meta<"optional", boolean>>;
 
         /**
          * Generates a schema object that matches a Buffer data type (as well as the strings which will be converted to Buffers).
@@ -1971,35 +2059,35 @@ declare namespace Joi {
         /**
          * Generates a schema object that matches a number data type (as well as strings that can be converted to numbers).
          */
-        number(): NumberSchema;
+        number(): NumberSchema<Meta<"optional", number>>;
 
         /**
          * Generates a schema object that matches an object data type (as well as JSON strings that have been parsed into objects).
          */
         // tslint:disable-next-line:no-unnecessary-generics
-        object<TSchema = any, T = TSchema>(schema?: SchemaMap<T>): ObjectSchema<TSchema>;
+        object<TSchema extends SchemaLike = any, T extends SchemaLike = TSchema, TNewSchema extends Record<keyof TSchema, T> = Record<keyof TSchema, T>>(o?: TNewSchema): ObjectSchema<SimplifyObjectSchema<TNewSchema>, Meta<"optional", SimplifyObjectSchema<TNewSchema>>>;
 
         /**
          * Generates a schema object that matches a string data type. Note that empty strings are not allowed by default and must be enabled with allow('').
          */
-        string(): StringSchema;
+        string(): StringSchema<Meta<"optional", string>>;
 
         /**
          * Generates a schema object that matches any symbol.
          */
-        symbol(): SymbolSchema;
+        symbol(): SymbolSchema<Meta<"optional", string>>;
 
         /**
          * Generates a type that will match one of the provided alternative schemas
          */
-        alternatives(types: SchemaLike[]): AlternativesSchema;
-        alternatives(...types: SchemaLike[]): AlternativesSchema;
+        alternatives<T extends SchemaLike>(types: T[]): AlternativesSchema<Meta<"optional", SchemaToType<T>>>;
+        alternatives<T extends SchemaLike>(...types: T[]): AlternativesSchema<Meta<"optional", SchemaToType<T>>>;
 
         /**
          * Alias for `alternatives`
          */
-        alt(types: SchemaLike[]): AlternativesSchema;
-        alt(...types: SchemaLike[]): AlternativesSchema;
+        alt<T extends SchemaLike>(types: T[]): AlternativesSchema<Meta<"optional", SchemaToType<T>>>;
+        alt<T extends SchemaLike>(...types: T[]): AlternativesSchema<Meta<"optional", SchemaToType<T>>>;
 
         /**
          * Links to another schema node and reuses it for validation, typically for creative recursive schemas.
