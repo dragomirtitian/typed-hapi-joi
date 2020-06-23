@@ -916,7 +916,7 @@ declare namespace Joi {
         /**
          * Resets current schema.
          */
-        $_mutateRebuild(): this;
+        $_mutateRebuild<TThis>(this: TThis, ): TThis;
 
         $_mutateRegister(schema: Schema, options?: MutateRegisterOptions): void;
 
@@ -968,7 +968,7 @@ declare namespace Joi {
          * Assign target alteration options to a schema that are applied when `any.tailor()` is called.
          * @param targets - an object where each key is a target name, and each value is a function that takes an schema and returns an schema.
          */
-        alter(targets: Record<string, SchemaFunction>): this;
+        alter<TThis>(this: TThis, targets: Record<string, SchemaFunction>): TThis;
 
         /**
          * By default, some Joi methods to function properly need to rely on the Joi instance they are attached to because
@@ -976,28 +976,28 @@ declare namespace Joi {
          * So `Joi.string()` works but if you extract the function from it and call `string()` it won't.
          * `bind()` creates a new Joi instance where all the functions relying on `this` are bound to the Joi instance.
          */
-        bind(): this;
+        bind<TThis>(this: TThis, ): TThis;
 
         /**
          * Adds caching to the schema which will attempt to cache the validation results (success and failures) of incoming inputs.
          * If no cache is passed, a default cache is provisioned by using `cache.provision()` internally.
          */
-        cache(cache?: Cache): this;
+        cache<TThis>(this: TThis, cache?: Cache): TThis;
 
         /**
          * Casts the validated value to the specified type.
          */
-        cast(to: 'map' | 'number' | 'set' | 'string'): this;
+        cast<TThis>(this: TThis, to: 'map' | 'number' | 'set' | 'string'): TThis;
 
         /**
          * Returns a new type that is the result of adding the rules of one type to another.
          */
-        concat(schema: this): this;
+        concat<TThis>(this: TThis, schema: this): TThis;
 
         /**
          * Adds a custom validation function.
          */
-        custom(fn: CustomValidator, description?: string): this;
+        custom<TThis>(this: TThis, fn: CustomValidator, description?: string): TThis;
 
         /**
          * Sets a default value if the original value is `undefined` where:
@@ -1015,7 +1015,7 @@ declare namespace Joi {
          * Note that if value is an object, any changes to the object after `default()` is called will change the
          *  reference and any future assignment.
          */
-        default(value?: BasicType|Reference|((parent: any, helpers: CustomHelpers) => BasicType|Reference)): this;
+        default<TThis>(this: TThis, value?: BasicType|Reference|((parent: any, helpers: CustomHelpers) => BasicType|Reference)): TThis;
 
         /**
          * Returns a plain object representing the schema's rules and properties
@@ -1025,18 +1025,18 @@ declare namespace Joi {
         /**
          * Annotates the key
          */
-        description(desc: string): this;
+        description<TThis>(this: TThis, desc: string): TThis;
 
         /**
          * Disallows values.
          */
-        disallow(...values: any[]): this;
+        disallow<TThis>(this: TThis, ...values: any[]): TThis;
 
         /**
          * Considers anything that matches the schema to be empty (undefined).
          * @param schema - any object or joi schema to match. An undefined schema unsets that rule.
          */
-        empty(schema?: SchemaLike): this;
+        empty<TThis>(this: TThis, schema?: SchemaLike): TThis;
 
         /**
          * Overrides the default joi error with a custom error if the rule fails where:
@@ -1056,12 +1056,12 @@ declare namespace Joi {
          * override, that error will be returned and the override will be ignored (unless the `abortEarly`
          * option has been set to `false`).
          */
-        error(err: Error | ValidationErrorFunction): this;
+        error<TThis>(this: TThis, err: Error | ValidationErrorFunction): TThis;
 
         /**
          * Annotates the key with an example value, must be valid.
          */
-        example(value: any, options?: { override: boolean }): this;
+        example<TThis>(this: TThis, value: any, options?: { override: boolean }): TThis;
 
         /**
          * Adds an external validation rule.
@@ -1070,7 +1070,7 @@ declare namespace Joi {
          * This means that any changes made to the value by the external rules are not available to any other validation rules during the non-external validation phase.
          * If schema validation failed, no external validation rules are called.
          */
-        external(method: ExternalValidationFunction, description?: string): this;
+        external<TThis>(this: TThis, method: ExternalValidationFunction, description?: string): TThis;
 
         /**
          * Returns a sub-schema based on a path of object keys or schema ids.
@@ -1090,7 +1090,7 @@ declare namespace Joi {
          * Using a function with a single argument performs some internal cloning which has a performance impact.
          * If you do not need access to the context, define the function without any arguments.
          */
-        failover(value: any): this;
+        failover<TThis>(this: TThis, value: any): TThis;
 
         /**
          * Returns a new schema where each of the path keys listed have been modified.
@@ -1098,19 +1098,19 @@ declare namespace Joi {
          * @param key - an array of key strings, a single key string, or an array of arrays of pre-split key strings.
          * @param adjuster - a function which must return a modified schema.
          */
-        fork(key: string | string[] | string[][], adjuster: SchemaFunction): this;
+        fork<TThis>(this: TThis, key: string | string[] | string[][], adjuster: SchemaFunction): TThis;
 
         /**
          * Sets a schema id for reaching into the schema via `any.extract()`.
          * If no id is set, the schema id defaults to the object key it is associated with.
          * If the schema is used in an array or alternatives type and no id is set, the schema in unreachable.
          */
-        id(name?: string): this;
+        id<TThis>(this: TThis, name?: string): TThis;
 
         /**
          * Disallows values.
          */
-        invalid(...values: any[]): this;
+        invalid<TThis>(this: TThis, ...values: any[]): TThis;
 
         /**
          * Same as `rule({ keep: true })`.
@@ -1118,12 +1118,12 @@ declare namespace Joi {
          * Note that `keep()` will terminate the current ruleset and cannot be followed by another rule option.
          * Use `rule()` to apply multiple rule options.
          */
-        keep(): this;
+        keep<TThis>(this: TThis, ): TThis;
 
         /**
          * Overrides the key name in error messages.
          */
-        label(name: string): this;
+        label<TThis>(this: TThis, name: string): TThis;
 
         /**
          * Same as `rule({ message })`.
@@ -1131,48 +1131,48 @@ declare namespace Joi {
          * Note that `message()` will terminate the current ruleset and cannot be followed by another rule option.
          * Use `rule()` to apply multiple rule options.
          */
-        message(message: string): this;
+        message<TThis>(this: TThis, message: string): TThis;
 
         /**
          * Same as `any.prefs({ messages })`.
          * Note that while `any.message()` applies only to the last rule or ruleset, `any.messages()` applies to the entire schema.
          */
-        messages(messages: LanguageMessages): this;
+        messages<TThis>(this: TThis, messages: LanguageMessages): TThis;
 
         /**
          * Attaches metadata to the key.
          */
-        meta(meta: object): this;
+        meta<TThis>(this: TThis, meta: object): TThis;
 
         /**
          * Disallows values.
          */
-        not(...values: any[]): this;
+        not<TThis>(this: TThis, ...values: any[]): TThis;
 
         /**
          * Annotates the key
          */
-        note(...notes: string[]): this;
+        note<TThis>(this: TThis, ...notes: string[]): TThis;
 
         /**
          * Overrides the global validate() options for the current key and any sub-key.
          */
-        options(options: ValidationOptions): this;
+        options<TThis>(this: TThis, options: ValidationOptions): TThis;
 
         /**
          * Overrides the global validate() options for the current key and any sub-key.
          */
-        prefs(options: ValidationOptions): this;
+        prefs<TThis>(this: TThis, options: ValidationOptions): TThis;
 
         /**
          * Overrides the global validate() options for the current key and any sub-key.
          */
-        preferences(options: ValidationOptions): this;
+        preferences<TThis>(this: TThis, options: ValidationOptions): TThis;
 
         /**
          * Outputs the original untouched value instead of the casted value.
          */
-        raw(enabled?: boolean): this;
+        raw<TThis>(this: TThis, enabled?: boolean): TThis;
 
         /**
          * Applies a set of rule options to the current ruleset or last rule added.
@@ -1186,28 +1186,28 @@ declare namespace Joi {
          * internal implementation (e.g. `valid()`).
          * In those cases, use the `any.messages()` method to override the error codes for the errors you want to customize.
          */
-        rule(options: RuleOptions): this;
+        rule<TThis>(this: TThis, options: RuleOptions): TThis;
 
         /**
          * Registers a schema to be used by decendents of the current schema in named link references.
          */
-        shared(ref: Schema): this;
+        shared<TThis>(this: TThis, ref: Schema): TThis;
 
         /**
          * Sets the options.convert options to false which prevent type casting for the current key and any child keys.
          */
-        strict(isStrict?: boolean): this;
+        strict<TThis>(this: TThis, isStrict?: boolean): TThis;
 
         /**
          * Marks a key to be removed from a resulting object or array after validation. Used to sanitize output.
          * @param [enabled=true] - if true, the value is stripped, otherwise the validated value is retained. Defaults to true.
          */
-        strip(enabled?: boolean): this;
+        strip<TThis>(this: TThis, enabled?: boolean): TThis;
 
         /**
          * Annotates the key
          */
-        tag(...tags: string[]): this;
+        tag<TThis>(this: TThis, ...tags: string[]): TThis;
 
         /**
          * Applies any assigned target alterations to a copy of the schema that were applied via `any.alter()`.
@@ -1217,7 +1217,7 @@ declare namespace Joi {
         /**
          * Annotates the key with an unit name.
          */
-        unit(name: string): this;
+        unit<TThis>(this: TThis, name: string): TThis;
 
         /**
          * Validates a value using the schema and options.
@@ -1234,7 +1234,7 @@ declare namespace Joi {
          * Note that `warn()` will terminate the current ruleset and cannot be followed by another rule option.
          * Use `rule()` to apply multiple rule options.
          */
-        warn(): this;
+        warn<TThis>(this: TThis, ): TThis;
 
         /**
          * Generates a warning.
@@ -1242,17 +1242,17 @@ declare namespace Joi {
          * Warnings are reported separately from errors alongside the result value via the warning key (i.e. `{ value, warning }`).
          * Warning are always included when calling `any.validate()`.
          */
-        warning(code: string, context: Context): this;
+        warning<TThis>(this: TThis, code: string, context: Context): TThis;
 
         /**
          * Converts the type into an alternatives type where the conditions are merged into the type definition where:
          */
-        when(ref: string | Reference, options: WhenOptions): this;
+        when<TThis>(this: TThis, ref: string | Reference, options: WhenOptions): TThis;
 
         /**
          * Converts the type into an alternatives type where the conditions are merged into the type definition where:
          */
-        when(ref: Schema, options: WhenSchemaOptions): this;
+        when<TThis>(this: TThis, ref: Schema, options: WhenSchemaOptions): TThis;
     }
 
     interface Description {
@@ -1294,20 +1294,20 @@ declare namespace Joi {
          * see `boolean.sensitive()` to change this behavior.
          * @param values - strings, numbers or arrays of them
          */
-        falsy(...values: Array<string | number>): this;
+        falsy<TThis>(this: TThis, ...values: Array<string | number>): TThis;
 
         /**
          * Allows the values provided to truthy and falsy as well as the "true" and "false" default conversion
          * (when not in `strict()` mode) to be matched in a case insensitive manner.
          */
-        sensitive(enabled?: boolean): this;
+        sensitive<TThis>(this: TThis, enabled?: boolean): TThis;
 
         /**
          * Allows for additional values to be considered valid booleans by converting them to true during validation.
          * String comparisons are by default case insensitive, see `boolean.sensitive()` to change this behavior.
          * @param values - strings, numbers or arrays of them
          */
-        truthy(...values: Array<string | number>): this;
+        truthy<TThis>(this: TThis, ...values: Array<string | number>): TThis;
     }
 
     interface NumberSchema<TMeta extends Meta = Meta<never, number>> extends TypeMetaSchema<TMeta, "number">, Omit<AnySchema<TMeta>, keyof TypeMetaSchema> {
@@ -1315,170 +1315,170 @@ declare namespace Joi {
          * Specifies that the value must be greater than limit.
          * It can also be a reference to another field.
          */
-        greater(limit: number | Reference): this;
+        greater<TThis>(this: TThis, limit: number | Reference): TThis;
 
         /**
          * Requires the number to be an integer (no floating point).
          */
-        integer(): this;
+        integer<TThis>(this: TThis, ): TThis;
 
         /**
          * Specifies that the value must be less than limit.
          * It can also be a reference to another field.
          */
-        less(limit: number | Reference): this;
+        less<TThis>(this: TThis, limit: number | Reference): TThis;
 
         /**
          * Specifies the maximum value.
          * It can also be a reference to another field.
          */
-        max(limit: number | Reference): this;
+        max<TThis>(this: TThis, limit: number | Reference): TThis;
 
         /**
          * Specifies the minimum value.
          * It can also be a reference to another field.
          */
-        min(limit: number | Reference): this;
+        min<TThis>(this: TThis, limit: number | Reference): TThis;
 
         /**
          * Specifies that the value must be a multiple of base.
          */
-        multiple(base: number | Reference): this;
+        multiple<TThis>(this: TThis, base: number | Reference): TThis;
 
         /**
          * Requires the number to be negative.
          */
-        negative(): this;
+        negative<TThis>(this: TThis, ): TThis;
 
         /**
          * Requires the number to be a TCP port, so between 0 and 65535.
          */
-        port(): this;
+        port<TThis>(this: TThis, ): TThis;
 
         /**
          * Requires the number to be positive.
          */
-        positive(): this;
+        positive<TThis>(this: TThis, ): TThis;
 
         /**
          * Specifies the maximum number of decimal places where:
          * @param limit - the maximum number of decimal places allowed.
          */
-        precision(limit: number): this;
+        precision<TThis>(this: TThis, limit: number): TThis;
 
         /**
          * Requires the number to be negative or positive.
          */
-        sign(sign: 'positive' | 'negative'): this;
+        sign<TThis>(this: TThis, sign: 'positive' | 'negative'): TThis;
 
         /**
          * Allows the number to be outside of JavaScript's safety range (Number.MIN_SAFE_INTEGER & Number.MAX_SAFE_INTEGER).
          */
-        unsafe(enabled?: any): this;
+        unsafe<TThis>(this: TThis, enabled?: any): TThis;
     }
 
     interface StringSchema<TMeta extends Meta = Meta<never, string>> extends TypeMetaSchema<TMeta, "string">, Omit<AnySchema<TMeta>, keyof TypeMetaSchema> {
         /**
          * Requires the string value to only contain a-z, A-Z, and 0-9.
          */
-        alphanum(): this;
+        alphanum<TThis>(this: TThis, ): TThis;
 
         /**
          * Requires the string value to be a valid base64 string; does not check the decoded value.
          */
-        base64(options?: Base64Options): this;
+        base64<TThis>(this: TThis, options?: Base64Options): TThis;
 
         /**
          * Sets the required string case.
          */
-        case(direction: 'upper' | 'lower'): this;
+        case<TThis>(this: TThis, direction: 'upper' | 'lower'): TThis;
 
         /**
          * Requires the number to be a credit card number (Using Lunh Algorithm).
          */
-        creditCard(): this;
+        creditCard<TThis>(this: TThis, ): TThis;
 
         /**
          * Requires the string value to be a valid data URI string.
          */
-        dataUri(options?: DataUriOptions): this;
+        dataUri<TThis>(this: TThis, options?: DataUriOptions): TThis;
 
         /**
          * Requires the string value to be a valid domain.
          */
-        domain(options?: DomainOptions): this;
+        domain<TThis>(this: TThis, options?: DomainOptions): TThis;
 
         /**
          * Requires the string value to be a valid email address.
          */
-        email(options?: EmailOptions): this;
+        email<TThis>(this: TThis, options?: EmailOptions): TThis;
 
         /**
          * Requires the string value to be a valid GUID.
          */
-        guid(options?: GuidOptions): this;
+        guid<TThis>(this: TThis, options?: GuidOptions): TThis;
 
         /**
          * Requires the string value to be a valid hexadecimal string.
          */
-        hex(options?: HexOptions): this;
+        hex<TThis>(this: TThis, options?: HexOptions): TThis;
 
         /**
          * Requires the string value to be a valid hostname as per RFC1123.
          */
-        hostname(): this;
+        hostname<TThis>(this: TThis, ): TThis;
 
         /**
          * Allows the value to match any whitelist of blacklist item in a case insensitive comparison.
          */
-        insensitive(): this;
+        insensitive<TThis>(this: TThis, ): TThis;
 
         /**
          * Requires the string value to be a valid ip address.
          */
-        ip(options?: IpOptions): this;
+        ip<TThis>(this: TThis, options?: IpOptions): TThis;
 
         /**
          * Requires the string value to be in valid ISO 8601 date format.
          */
-        isoDate(): this;
+        isoDate<TThis>(this: TThis, ): TThis;
 
         /**
          * Requires the string value to be in valid ISO 8601 duration format.
          */
-        isoDuration(): this;
+        isoDuration<TThis>(this: TThis, ): TThis;
 
         /**
          * Specifies the exact string length required
          * @param limit - the required string length. It can also be a reference to another field.
          * @param encoding - if specified, the string length is calculated in bytes using the provided encoding.
          */
-        length(limit: number | Reference, encoding?: string): this;
+        length<TThis>(this: TThis, limit: number | Reference, encoding?: string): TThis;
 
         /**
          * Requires the string value to be all lowercase. If the validation convert option is on (enabled by default), the string will be forced to lowercase.
          */
-        lowercase(): this;
+        lowercase<TThis>(this: TThis, ): TThis;
 
         /**
          * Specifies the maximum number of string characters.
          * @param limit - the maximum number of string characters allowed. It can also be a reference to another field.
          * @param encoding - if specified, the string length is calculated in bytes using the provided encoding.
          */
-        max(limit: number | Reference, encoding?: string): this;
+        max<TThis>(this: TThis, limit: number | Reference, encoding?: string): TThis;
 
         /**
          * Specifies the minimum number string characters.
          * @param limit - the minimum number of string characters required. It can also be a reference to another field.
          * @param encoding - if specified, the string length is calculated in bytes using the provided encoding.
          */
-        min(limit: number | Reference, encoding?: string): this;
+        min<TThis>(this: TThis, limit: number | Reference, encoding?: string): TThis;
 
         /**
          * Requires the string value to be in a unicode normalized form. If the validation convert option is on (enabled by default), the string will be normalized.
          * @param [form='NFC'] - The unicode normalization form to use. Valid values: NFC [default], NFD, NFKC, NFKD
          */
-        normalize(form?: 'NFC' | 'NFD' | 'NFKC' | 'NFKD'): this;
+        normalize<TThis>(this: TThis, form?: 'NFC' | 'NFD' | 'NFKC' | 'NFKD'): TThis;
 
         /**
          * Defines a regular expression rule.
@@ -1489,7 +1489,7 @@ declare namespace Joi {
          *     name - optional pattern name.
          *     invert - optional boolean flag. Defaults to false behavior. If specified as true, the provided pattern will be disallowed instead of required.
          */
-        pattern(pattern: RegExp, options?: string | StringRegexOptions): this;
+        pattern<TThis>(this: TThis, pattern: RegExp, options?: string | StringRegexOptions): TThis;
 
         /**
          * Defines a regular expression rule.
@@ -1500,51 +1500,51 @@ declare namespace Joi {
          *     name - optional pattern name.
          *     invert - optional boolean flag. Defaults to false behavior. If specified as true, the provided pattern will be disallowed instead of required.
          */
-        regex(pattern: RegExp, options?: string | StringRegexOptions): this;
+        regex<TThis>(this: TThis, pattern: RegExp, options?: string | StringRegexOptions): TThis;
 
         /**
          * Replace characters matching the given pattern with the specified replacement string where:
          * @param pattern - a regular expression object to match against, or a string of which all occurrences will be replaced.
          * @param replacement - the string that will replace the pattern.
          */
-        replace(pattern: RegExp | string, replacement: string): this;
+        replace<TThis>(this: TThis, pattern: RegExp | string, replacement: string): TThis;
 
         /**
          * Requires the string value to only contain a-z, A-Z, 0-9, and underscore _.
          */
-        token(): this;
+        token<TThis>(this: TThis, ): TThis;
 
         /**
          * Requires the string value to contain no whitespace before or after. If the validation convert option is on (enabled by default), the string will be trimmed.
          * @param [enabled=true] - optional parameter defaulting to true which allows you to reset the behavior of trim by providing a falsy value.
          */
-        trim(enabled?: any): this;
+        trim<TThis>(this: TThis, enabled?: any): TThis;
 
         /**
          * Specifies whether the string.max() limit should be used as a truncation.
          * @param [enabled=true] - optional parameter defaulting to true which allows you to reset the behavior of truncate by providing a falsy value.
          */
-        truncate(enabled?: boolean): this;
+        truncate<TThis>(this: TThis, enabled?: boolean): TThis;
 
         /**
          * Requires the string value to be all uppercase. If the validation convert option is on (enabled by default), the string will be forced to uppercase.
          */
-        uppercase(): this;
+        uppercase<TThis>(this: TThis, ): TThis;
 
         /**
          * Requires the string value to be a valid RFC 3986 URI.
          */
-        uri(options?: UriOptions): this;
+        uri<TThis>(this: TThis, options?: UriOptions): TThis;
 
         /**
          * Requires the string value to be a valid GUID.
          */
-        uuid(options?: GuidOptions): this;
+        uuid<TThis>(this: TThis, options?: GuidOptions): TThis;
     }
 
     interface SymbolSchema<TMeta extends Meta = Meta<never, symbol>> extends TypeMetaSchema<TMeta, "symbol">, Omit<AnySchema<TMeta>, keyof TypeMetaSchema> {
         // TODO: support number and symbol index
-        map(iterable: Iterable<[string | number | boolean | symbol, symbol]> | { [key: string]: symbol }): this;
+        map<TThis>(this: TThis, iterable: Iterable<[string | number | boolean | symbol, symbol]> | { [key: string]: symbol }): TThis;
     }
 
     interface ArraySortOptions {
@@ -1572,7 +1572,7 @@ declare namespace Joi {
          * `schema` - the validation rules required to satisfy the assertion. If the `schema` includes references, they are resolved against
          * the array item being tested, not the value of the `ref` target.
          */
-        has(schema: SchemaLike): this;
+        has<TThis>(this: TThis, schema: SchemaLike): TThis;
 
         /**
          * List the types allowed for the array values.
@@ -1589,17 +1589,17 @@ declare namespace Joi {
         /**
          * Specifies the exact number of items in the array.
          */
-        length(limit: number | Reference): this;
+        length<TThis>(this: TThis, limit: number | Reference): TThis;
 
         /**
          * Specifies the maximum number of items in the array.
          */
-        max(limit: number | Reference): this;
+        max<TThis>(this: TThis, limit: number | Reference): TThis;
 
         /**
          * Specifies the minimum number of items in the array.
          */
-        min(limit: number | Reference): this;
+        min<TThis>(this: TThis, limit: number | Reference): TThis;
 
         /**
          * Lists the types in sequence order for the array values where:
@@ -1614,18 +1614,18 @@ declare namespace Joi {
          * Allow single values to be checked against rules as if it were provided as an array.
          * enabled can be used with a falsy value to go back to the default behavior.
          */
-        single(enabled?: any): this;
+        single<TThis>(this: TThis, enabled?: any): TThis;
 
         /**
          * Sorts the array by given order.
          */
-        sort(options?: ArraySortOptions): this;
+        sort<TThis>(this: TThis, options?: ArraySortOptions): TThis;
 
         /**
          * Allow this array to be sparse.
          * enabled can be used with a falsy value to go back to the default behavior.
          */
-        sparse(enabled?: any): this;
+        sparse<TThis>(this: TThis, enabled?: any): TThis;
 
         /**
          * Requires the array values to be unique.
@@ -1634,7 +1634,7 @@ declare namespace Joi {
          * Be aware that a deep equality is performed on elements of the array having a type of object,
          * a performance penalty is to be expected for this kind of operation.
          */
-        unique(comparator?: string | ComparatorFunction, options?: ArrayUniqueOptions): this;
+        unique<TThis>(this: TThis, comparator?: string | ComparatorFunction, options?: ArrayUniqueOptions): TThis;
     }
 
     interface ObjectPatternOptions {
@@ -1648,17 +1648,17 @@ declare namespace Joi {
          *
          * Optional settings must be the last argument.
          */
-        and(...peers: Array<string | HierarchySeparatorOptions>): this;
+        and<TThis>(this: TThis, ...peers: Array<string | HierarchySeparatorOptions>): TThis;
 
         /**
          * Appends the allowed object keys. If schema is null, undefined, or {}, no changes will be applied.
          */
-        append(schema?: SchemaMap<TSchema>): this;
+        append<TNewSchema extends Record<string, SchemaLike>>(o?: TNewSchema): ObjectSchema<TSchema & SimplifyObjectSchema<TNewSchema>, Meta<"optional", TSchema & SimplifyObjectSchema<TNewSchema>>>;
 
         /**
          * Verifies an assertion where.
          */
-        assert(ref: string | Reference, schema: SchemaLike, message?: string): this;
+        assert<TThis>(this: TThis, ref: string | Reference, schema: SchemaLike, message?: string): TThis;
 
         /**
          * Requires the object to be an instance of a given constructor.
@@ -1667,48 +1667,48 @@ declare namespace Joi {
          * @param name - an alternate name to use in validation errors. This is useful when the constructor function does not have a name.
          */
         // tslint:disable-next-line:ban-types
-        instance(constructor: Function, name?: string): this;
+        instance<TThis>(this: TThis, constructor: Function, name?: string): TThis;
 
         /**
          * Sets or extends the allowed object keys.
          */
-        keys(schema?: SchemaMap<TSchema>): this;
+        keys<TNewSchema extends Record<keyof TSchema, SchemaLike>>(o?: TNewSchema): ObjectSchema<SimplifyObjectSchema<TNewSchema>, Meta<"optional", SimplifyObjectSchema<TNewSchema>>>;
 
         /**
          * Specifies the exact number of keys in the object.
          */
-        length(limit: number): this;
+        length<TThis>(this: TThis, limit: number): TThis;
 
         /**
          * Specifies the maximum number of keys in the object.
          */
-        max(limit: number | Reference): this;
+        max<TThis>(this: TThis, limit: number | Reference): TThis;
 
         /**
          * Specifies the minimum number of keys in the object.
          */
-        min(limit: number | Reference): this;
+        min<TThis>(this: TThis, limit: number | Reference): TThis;
 
         /**
          * Defines a relationship between keys where not all peers can be present at the same time.
          *
          * Optional settings must be the last argument.
          */
-        nand(...peers: Array<string | HierarchySeparatorOptions>): this;
+        nand<TThis>(this: TThis, ...peers: Array<string | HierarchySeparatorOptions>): TThis;
 
         /**
          * Defines a relationship between keys where one of the peers is required (and more than one is allowed).
          *
          * Optional settings must be the last argument.
          */
-        or(...peers: Array<string | HierarchySeparatorOptions>): this;
+        or<TThis>(this: TThis, ...peers: Array<string | HierarchySeparatorOptions>): TThis;
 
         /**
          * Defines an exclusive relationship between a set of keys where only one is allowed but none are required.
          *
          * Optional settings must be the last argument.
          */
-        oxor(...peers: Array<string | HierarchySeparatorOptions>): this;
+        oxor<TThis>(this: TThis, ...peers: Array<string | HierarchySeparatorOptions>): TThis;
 
         /**
          * Specify validation rules for unknown keys matching a pattern.
@@ -1716,71 +1716,71 @@ declare namespace Joi {
          * @param pattern - a pattern that can be either a regular expression or a joi schema that will be tested against the unknown key names
          * @param schema - the schema object matching keys must validate against
          */
-        pattern(pattern: RegExp | SchemaLike, schema: SchemaLike, options?: ObjectPatternOptions): this;
+        pattern<TThis>(this: TThis, pattern: RegExp | SchemaLike, schema: SchemaLike, options?: ObjectPatternOptions): TThis;
 
         /**
          * Requires the object to be a Joi reference.
          */
-        ref(): this;
+        ref<TThis>(this: TThis, ): TThis;
 
         /**
          * Requires the object to be a `RegExp` object.
          */
-        regex(): this;
+        regex<TThis>(this: TThis, ): TThis;
 
         /**
          * Renames a key to another name (deletes the renamed key).
          */
-        rename(from: string, to: string, options?: RenameOptions): this;
+        rename<TThis>(this: TThis, from: string, to: string, options?: RenameOptions): TThis;
 
         /**
          * Requires the object to be a Joi schema instance.
          */
-        schema(type?: SchemaLike): this;
+        schema<TThis>(this: TThis, type?: SchemaLike): TThis;
 
         /**
          * Overrides the handling of unknown keys for the scope of the current object only (does not apply to children).
          */
-        unknown(allow?: boolean): this;
+        unknown<TThis>(this: TThis, allow?: boolean): TThis;
 
         /**
          * Requires the presence of other keys whenever the specified key is present.
          */
-        with(key: string, peers: string | string[], options?: HierarchySeparatorOptions): this;
+        with<TThis>(this: TThis, key: string, peers: string | string[], options?: HierarchySeparatorOptions): TThis;
 
         /**
          * Forbids the presence of other keys whenever the specified is present.
          */
-        without(key: string, peers: string | string[], options?: HierarchySeparatorOptions): this;
+        without<TThis>(this: TThis, key: string, peers: string | string[], options?: HierarchySeparatorOptions): TThis;
 
         /**
          * Defines an exclusive relationship between a set of keys. one of them is required but not at the same time.
          *
          * Optional settings must be the last argument.
          */
-        xor(...peers: Array<string | HierarchySeparatorOptions>): this;
+        xor<TThis>(this: TThis, ...peers: Array<string | HierarchySeparatorOptions>): TThis;
     }
 
     interface BinarySchema extends AnySchema {
         /**
          * Sets the string encoding format if a string input is converted to a buffer.
          */
-        encoding(encoding: string): this;
+        encoding<TThis>(this: TThis, encoding: string): TThis;
 
         /**
          * Specifies the minimum length of the buffer.
          */
-        min(limit: number | Reference): this;
+        min<TThis>(this: TThis, limit: number | Reference): TThis;
 
         /**
          * Specifies the maximum length of the buffer.
          */
-        max(limit: number | Reference): this;
+        max<TThis>(this: TThis, limit: number | Reference): TThis;
 
         /**
          * Specifies the exact length of the buffer:
          */
-        length(limit: number | Reference): this;
+        length<TThis>(this: TThis, limit: number | Reference): TThis;
     }
 
     interface DateSchema <TMeta extends Meta = Meta<never, Date>> extends TypeMetaSchema<TMeta, "date">, Omit<AnySchema<TMeta>, keyof TypeMetaSchema> {
@@ -1790,12 +1790,12 @@ declare namespace Joi {
          * allowing to explicitly ensure a date is either in the past or in the future.
          * It can also be a reference to another field.
          */
-        greater(date: 'now' | Date | number | string | Reference): this;
+        greater<TThis>(this: TThis, date: 'now' | Date | number | string | Reference): TThis;
 
         /**
          * Requires the string value to be in valid ISO 8601 date format.
          */
-        iso(): this;
+        iso<TThis>(this: TThis, ): TThis;
 
         /**
          * Specifies that the value must be less than date.
@@ -1803,7 +1803,7 @@ declare namespace Joi {
          * allowing to explicitly ensure a date is either in the past or in the future.
          * It can also be a reference to another field.
          */
-        less(date: 'now' | Date | number | string | Reference): this;
+        less<TThis>(this: TThis, date: 'now' | Date | number | string | Reference): TThis;
 
         /**
          * Specifies the oldest date allowed.
@@ -1811,7 +1811,7 @@ declare namespace Joi {
          * allowing to explicitly ensure a date is either in the past or in the future.
          * It can also be a reference to another field.
          */
-        min(date: 'now' | Date | number | string | Reference): this;
+        min<TThis>(this: TThis, date: 'now' | Date | number | string | Reference): TThis;
 
         /**
          * Specifies the latest date allowed.
@@ -1819,13 +1819,13 @@ declare namespace Joi {
          * allowing to explicitly ensure a date is either in the past or in the future.
          * It can also be a reference to another field.
          */
-        max(date: 'now' | Date | number | string | Reference): this;
+        max<TThis>(this: TThis, date: 'now' | Date | number | string | Reference): TThis;
 
         /**
          * Requires the value to be a timestamp interval from Unix Time.
          * @param type - the type of timestamp (allowed values are unix or javascript [default])
          */
-        timestamp(type?: 'javascript' | 'unix'): this;
+        timestamp<TThis>(this: TThis, type?: 'javascript' | 'unix'): TThis;
     }
 
     interface FunctionSchema extends ObjectSchema {
@@ -1833,38 +1833,38 @@ declare namespace Joi {
          * Specifies the arity of the function where:
          * @param n - the arity expected.
          */
-        arity(n: number): this;
+        arity<TThis>(this: TThis, n: number): TThis;
 
         /**
          * Requires the function to be a class.
          */
-        class(): this;
+        class<TThis>(this: TThis, ): TThis;
 
         /**
          * Specifies the minimal arity of the function where:
          * @param n - the minimal arity expected.
          */
-        minArity(n: number): this;
+        minArity<TThis>(this: TThis, n: number): TThis;
 
         /**
          * Specifies the minimal arity of the function where:
          * @param n - the minimal arity expected.
          */
-        maxArity(n: number): this;
+        maxArity<TThis>(this: TThis, n: number): TThis;
     }
 
     interface AlternativesSchema <TMeta extends Meta = Meta<never>> extends TypeMetaSchema<TMeta, "alternatives">, Omit<AnySchema<TMeta>, keyof TypeMetaSchema> {
         /**
          * Adds a conditional alternative schema type, either based on another key value, or a schema peeking into the current value.
          */
-        conditional(ref: string | Reference, options: WhenOptions): this;
-        conditional(ref: Schema, options: WhenSchemaOptions): this;
+        conditional<TThis>(this: TThis, ref: string | Reference, options: WhenOptions): TThis;
+        conditional<TThis>(this: TThis, ref: Schema, options: WhenSchemaOptions): TThis;
 
         /**
          * Requires the validated value to match a specific set of the provided alternative.try() schemas.
          * Cannot be combined with `alternatives.conditional()`.
          */
-        match(mode: 'any' | 'all' | 'one'): this;
+        match<TThis>(this: TThis, mode: 'any' | 'all' | 'one'): TThis;
 
         /**
          * Adds an alternative schema type for attempting to match against the validated value.
@@ -1877,13 +1877,13 @@ declare namespace Joi {
          * Same as `any.concat()` but the schema is merged after the link is resolved which allows merging with schemas of the same type as the resolved link.
          * Will throw an exception during validation if the merged types are not compatible.
          */
-        concat(schema: Schema): this;
+        concat<TThis>(this: TThis, schema: Schema): TThis;
 
         /**
          * Initializes the schema after constructions for cases where the schema has to be constructed first and then initialized.
          * If `ref` was not passed to the constructor, `link.ref()` must be called prior to usaged.
          */
-        ref(ref: string): this;
+        ref<TThis>(this: TThis, ref: string): TThis;
     }
 
     interface Reference extends Exclude<ReferenceOptions, 'prefix'> {
