@@ -67,7 +67,7 @@ declare namespace Joi {
         [P in keyof T]: T[P] extends { __meta: Meta<TPresence> } ? P: never
     }[keyof T]
 
-    type DefaultSchemaToType<TMeta extends Meta> = TMeta extends Meta<never, infer TType, infer TValues, infer TOnly> ? [true] extends [TOnly] ? TValues : TType : never
+    type DefaultSchemaToType<TMeta extends Meta> = TMeta extends Meta<never, infer TType, infer TValues, infer TOnly> ? [true] extends [TOnly] ? TValues : TType | TValues : never
     interface SchemaToTypeMapHelper<TMeta extends Meta> {
         "any": DefaultSchemaToType<TMeta>
         "array": DefaultSchemaToType<TMeta>
@@ -1869,7 +1869,7 @@ declare namespace Joi {
         /**
          * Adds an alternative schema type for attempting to match against the validated value.
          */
-        try<T extends SchemaLike>(...types: SchemaLike[]): AlternativesSchema<ReplaceType<TMeta, SchemaToType<T>>>;
+        try<T extends SchemaLike[]>(...types: T): AlternativesSchema<ReplaceType<TMeta, SchemaToType<T[number]>>>;
     }
 
     interface LinkSchema extends AnySchema {
@@ -2024,7 +2024,7 @@ declare namespace Joi {
         /**
          * Generates a schema object that matches an array data type.
          */
-        array<T>(): ArraySchema<Meta<"optional", T[]>>;
+        array<T>(): ArraySchema<T, Meta<"optional", T[]>>;
 
         /**
          * Generates a schema object that matches a boolean data type (as well as the strings 'true', 'false', 'yes', and 'no'). Can also be called via bool().
@@ -2044,7 +2044,7 @@ declare namespace Joi {
         /**
          * Generates a schema object that matches a date type (as well as a JavaScript date string or number of milliseconds).
          */
-        date(): DateSchema;
+        date(): DateSchema<Meta<"optional", Date>>;
 
         /**
          * Generates a schema object that matches a function type.
